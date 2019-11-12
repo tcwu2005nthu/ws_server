@@ -21,27 +21,27 @@ var deleteDBInval = false;
 var heartBeat = false;
 var reset = 0;
 
-//============================
-//Functions can write on here.
-//============================
-/*function autoTesting(webSocket, webSockets) {
-    console.log("In autoTesting");
-    console.log(Object.keys(webSockets));
-    //console.log(Object.values(webSockets))
+var g_webSocket=null;
 
-    webSocket.on('message', (message) => {
-        console.log(`received from ${userIP} :  ${message}`);
-        const incomingIp = req.connection.remoteAddress.replace(/(^\D*)/g, '');
-        const sendTo = config.client.filter(item => item.ip !== incomingIp)[0].ip;
-        webSockets[sendTo].send(message);
-        console.log(`sent to ${sendTo} :  ${message}`);
-    });
-
-    webSocket.on('close', () => {
-        console.log(`${userIP} offline`);
-        delete webSockets[userIP];
-    });
-}*/
+/* Main() */
+var parameter = 0;
+console.log(process.argv);
+var myArgs = process.argv.slice(2);
+//console.log('myArgs: ', myArgs);
+switch (myArgs[0]) {
+  case '1':
+  	parameter=1;
+    break;
+  case '2':
+    parameter=2;
+    break;
+  case '3':
+    parameter=3;
+    break;
+  default:
+    console.log('Usage : node ws_server.js [parameter]');
+    process.exit();
+}
 
 function sleep(milliseconds) {
     var start = new Date().getTime();
@@ -60,12 +60,61 @@ function heartBeat(webSocket) {
     json = JSON.stringify(objHeart);
     webSocket.send(json);
 }
+var hbt_offset=0;
+function TestOne(strMessage){
+    var objHeart = {
+        job_id: "1000001"+hbt_offset,
+        action: "hbt"
+    };
+    var hbtJson = JSON.stringify(objHeart);
+
+
+    if (strMessage.action === "auth") {
+        if (strMessage.param.key === authKey) {
+            console.log("Auth OK,auth_key=" + strMessage.param.key);              
+            console.log("json="+hbtJson);
+            g_webSocket.send(hbtJson);
+        }
+    } else if (strMessage.result === "success" || strMessage.result === "failure") {
+          console.log("strMessage.result=" + JSON.stringify(strMessage));    
+            json = JSON.stringify(objHeart);
+            g_webSocket.send(hbtJson);
+   }
+   hbt_offset++;
+   sleep(1);
+}
+function autoTest(parameter,strMessage){
+    switch (parameter) {
+      case 1:
+      	TestOne(strMessage);
+        break;
+      case 2:
+        TestTwo();
+        break;
+      default:
+        console.log('autoTest error');
+    }
+}
 
 // client connect with ip
 webSocketServer.on('connection', (webSocket, req) => {
-    console.log('connected');
+  if(parameter===0)
+  	return ;
 
+  if(parameter===1 ||parameter===2){
+    console.log('parameter='+parameter);
+    g_webSocket=webSocket;
+    webSocket.on('message', (message) => {
+      strMessage = JSON.parse(message);
+      autoTest(parameter,strMessage);
+	});
+
+	return ;
+  }
+
+  //parameter===3
   const userIP = req.connection.remoteAddress.replace(/(^\D*)/g, '');
+  console.log('connected');
   
   if (config.client.some(item => item.ip === userIP)) {
     webSockets[userIP] = webSocket;
