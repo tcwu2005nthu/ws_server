@@ -117,10 +117,10 @@ function TestTwo(strMessage){
    //if(hbt_offset>10000)
    //        EXIT();
 }
-var t3cnt=0
+var t3cnt=0 //reserve for test3,4,5
 function TestThree(strMessage){ //db stress
     var obj = {
-        job_id: +"1005"+t3cnt,
+        job_id: +"1000"+t3cnt,
         action: "database",
         req_code: "0",
         param: {
