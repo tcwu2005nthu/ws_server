@@ -30,21 +30,22 @@ var myArgs = process.argv.slice(2);
 //check avaliable of unit test in following switch-case
 switch (myArgs[0]) {
   case '1':
-  	parameter=1;
-    break;
-/*  
+//  	parameter=1;
+//    break;
   case '2':
-    parameter=2;
-    break;
+//    parameter=2;
+//    break;
   case '3':
-    parameter=3;
+    parameter=parseInt(myArgs[0]);
     break; 
-*/
   default:
     console.log('Usage : node ws_server.js [parameter]');
     console.log('  1-99 : stressed api unit-test');
     console.log('  101-199 : out-of-bounds api unit-test');
-    process.exit();
+    console.log('  node ws_server.js 1 : hbt 1Million stress');
+    console.log('  node ws_server.js 2 : hbt endless(overnight) stress');    
+    console.log('  node ws_server.js 3 : createdb 1Million stress');    
+    EXIT();
 }
 
 function sleep(milliseconds) {
@@ -55,7 +56,6 @@ function sleep(milliseconds) {
         }
     }
 }
-
 function heartBeat(webSocket) {
     var objHeart = {
         job_id: "1011",
@@ -64,10 +64,13 @@ function heartBeat(webSocket) {
     json = JSON.stringify(objHeart);
     webSocket.send(json);
 }
+function EXIT(){
+    process.exit();
+}
 var hbt_offset=0;
 function TestOne(strMessage){
     var objHeart = {
-        job_id: "1000001"+hbt_offset,
+        job_id: +"1000001"+hbt_offset,
         action: "hbt"
     };
     var hbtJson = JSON.stringify(objHeart);
@@ -86,15 +89,73 @@ function TestOne(strMessage){
    }
    hbt_offset++;
    sleep(1);
+   if(hbt_offset>100000)
+        EXIT();
+}
+function TestTwo(strMessage){
+    var objHeart = {
+        job_id: +"1000001"+hbt_offset,
+        action: "hbt"
+    };
+    var hbtJson = JSON.stringify(objHeart);
+
+
+    if (strMessage.action === "auth") {
+        if (strMessage.param.key === authKey) {
+            console.log("Auth OK,auth_key=" + strMessage.param.key);              
+            console.log("json="+hbtJson);
+            g_webSocket.send(hbtJson);
+        }
+    } else if (strMessage.result === "success" || strMessage.result === "failure") {
+          console.log("strMessage.result=" + JSON.stringify(strMessage));    
+            json = JSON.stringify(objHeart);
+            g_webSocket.send(hbtJson);
+   }
+   hbt_offset++;
+   sleep(1);
+   //Endless stress test
+   //if(hbt_offset>10000)
+   //        EXIT();
+}
+var t3cnt=0
+function TestThree(strMessage){ //db stress
+    var obj = {
+        job_id: +"1005"+t3cnt,
+        action: "database",
+        req_code: "0",
+        param: {
+            filename: "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe",
+            hash_value: "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920"
+        }
+    };
+    var ResponseJson = JSON.stringify(obj);
+
+    if (strMessage.action === "auth") {
+        if (strMessage.param.key === authKey) {
+            console.log("Auth OK,auth_key=" + strMessage.param.key);              
+            console.log("json="+ResponseJson);
+            g_webSocket.send(ResponseJson);
+        }
+    } else if (strMessage.result === "success" || strMessage.result === "failure") {
+            console.log("strMessage.result=" + JSON.stringify(strMessage));    
+            g_webSocket.send(ResponseJson);
+   }
+   t3cnt++;
+   sleep(1);
+   if(t3cnt>1000000)
+    EXIT();
 }
 function autoTest(parameter,strMessage){
     switch (parameter) {
       case 1:
       	TestOne(strMessage);
         break;
-/*     case 2:
-            TestTwo();
-            break;          */
+      case 2:
+        TestTwo(strMessage);
+        break;     
+      case 3:
+        TestThree(strMessage);
+        break
       default:
         console.log('autoTest item('+ parameter +')error');
     }
