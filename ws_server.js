@@ -27,19 +27,23 @@ var g_webSocket=null;
 var parameter = 0;
 console.log(process.argv);
 var myArgs = process.argv.slice(2);
-//console.log('myArgs: ', myArgs);
+//check avaliable of unit test in following switch-case
 switch (myArgs[0]) {
   case '1':
   	parameter=1;
     break;
+/*  
   case '2':
     parameter=2;
     break;
   case '3':
     parameter=3;
-    break;
+    break; 
+*/
   default:
     console.log('Usage : node ws_server.js [parameter]');
+    console.log('  1-99 : stressed api unit-test');
+    console.log('  101-199 : out-of-bounds api unit-test');
     process.exit();
 }
 
@@ -88,11 +92,11 @@ function autoTest(parameter,strMessage){
       case 1:
       	TestOne(strMessage);
         break;
-      case 2:
-        TestTwo();
-        break;
+/*     case 2:
+            TestTwo();
+            break;          */
       default:
-        console.log('autoTest error');
+        console.log('autoTest item('+ parameter +')error');
     }
 }
 
@@ -101,18 +105,17 @@ webSocketServer.on('connection', (webSocket, req) => {
   if(parameter===0)
   	return ;
 
-  if(parameter===1 ||parameter===2){
+  if(parameter >=1 || parameter <=199){
     console.log('parameter='+parameter);
     g_webSocket=webSocket;
     webSocket.on('message', (message) => {
       strMessage = JSON.parse(message);
       autoTest(parameter,strMessage);
 	});
-
 	return ;
   }
 
-  //parameter===3
+  //decprecated
   const userIP = req.connection.remoteAddress.replace(/(^\D*)/g, '');
   console.log('connected');
   
@@ -311,8 +314,6 @@ webSocketServer.on('connection', (webSocket, req) => {
       else {
           console.log("c8c8c8c");
       }
-
-  
 });
 
   webSocket.on('close',  () => {
