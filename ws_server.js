@@ -30,12 +30,10 @@ var myArgs = process.argv.slice(2);
 //check avaliable of unit test in following switch-case
 switch (myArgs[0]) {
   case '1':
-//  	parameter=1;
-//    break;
   case '2':
-//    parameter=2;
-//    break;
   case '3':
+  case '11':
+  case '12':
     parameter=parseInt(myArgs[0]);
     break; 
   default:
@@ -45,6 +43,10 @@ switch (myArgs[0]) {
     console.log('  node ws_server.js 1 : hbt 1Million stress');
     console.log('  node ws_server.js 2 : hbt endless(overnight) stress');    
     console.log('  node ws_server.js 3 : createdb 1Million stress');    
+    console.log('  node ws_server.js 4 : createdb and deletedb 1Million stress (not yet)');    
+    console.log('  node ws_server.js 5 : createdb and updatedb and deletedb 1Million stress (not yet)');    
+    console.log('  node ws_server.js 11 : disable wl 1Millon stress ');    
+    console.log('  node ws_server.js 12 : enable and disable wl 1Millon stress');    
     EXIT();
 }
 
@@ -140,11 +142,47 @@ function TestThree(strMessage){ //db stress
             console.log("strMessage.result=" + JSON.stringify(strMessage));    
             g_webSocket.send(ResponseJson);
    }
-   t3cnt++;
    sleep(1);
+   t3cnt++;
    if(t3cnt>1000000)
     EXIT();
 }
+var t11cnt=0 //reserve for test11,12,13
+function TestEleven(strMessage){
+    var obj = {
+    job_id: +"11000"+t11cnt,
+    action: "switch_mode",
+    param: {
+        mode: "disable"
+        }
+    };
+    json = JSON.stringify(obj);
+    if (strMessage.action === "auth" || strMessage.result === "success" || strMessage.result === "failure") {
+        console.log("strMessage=" + JSON.stringify(strMessage));    
+        g_webSocket.send(json);
+    }
+    sleep(1);
+    if(t11cnt++>1000000)
+        EXIT();
+}
+function TestTwelve(strMessage){
+    var obj = {
+    job_id: +"12000"+t11cnt,
+    action: "switch_mode",
+    param: {
+        mode: (t11cnt%2)?"disable":"enable"
+        }
+    };
+    json = JSON.stringify(obj);
+    if (strMessage.action === "auth" || strMessage.result === "success" || strMessage.result === "failure") {
+        console.log("strMessage=" + JSON.stringify(strMessage));    
+        g_webSocket.send(json);
+    }
+    sleep(1);
+    if(t11cnt++>1000000)
+        EXIT();
+}
+
 function autoTest(parameter,strMessage){
     switch (parameter) {
       case 1:
@@ -156,6 +194,12 @@ function autoTest(parameter,strMessage){
       case 3:
         TestThree(strMessage);
         break
+      case 11:
+        TestEleven(strMessage);
+        break;
+      case 12:
+        TestTwelve(strMessage);
+        break;
       default:
         console.log('autoTest item('+ parameter +')error');
     }
