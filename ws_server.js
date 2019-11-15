@@ -1,4 +1,5 @@
 const fs = require('fs');
+const utf8 = require('utf8');
 const config = require('./config');
 const webSocketServer = new (require('ws')).Server({ port: config.port, host: config.host });
 var currentMode;
@@ -18,10 +19,24 @@ var createDBInval = false;
 var modifyDBInval = false;
 var deleteDBInval = false;
 
+var test101 = 0;
+var testCntUni = 0;
+
 var heartBeat = false;
 var reset = 0;
 
-var g_webSocket=null;
+var g_webSocket = null;
+
+var obj = {
+    job_id: "1005",
+    action: "database",
+    req_code: "0",
+    param: {
+        filename: "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe",
+        hash_value: "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920"
+    }
+};
+
 
 /* Main() */
 var parameter = 0;
@@ -37,7 +52,67 @@ switch (myArgs[0]) {
 //    break;
   case '3':
     parameter=parseInt(myArgs[0]);
-    break; 
+    break;
+  case '101':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '102':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '103':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '104':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '105':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '106':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '107':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '108':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '109':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '110':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '111':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '112':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '113':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '114':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '115':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '116':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '117':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '118':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '119':
+    parameter = parseInt(myArgs[0]);
+    break;
+  case '120':
+    parameter = parseInt(myArgs[0]);
+    break;
   default:
     console.log('Usage : node ws_server.js [parameter]');
     console.log('  1-99 : stressed api unit-test');
@@ -145,6 +220,168 @@ function TestThree(strMessage){ //db stress
    if(t3cnt>1000000)
     EXIT();
 }
+
+function Test101To199(strMessage, obj, fileName, hashValue) {
+    obj.param.filename = fileName;
+    obj.param.hash_value = hashValue;
+
+    if (test101 === 1) {
+        //update db
+        obj['job_id'] = "1006";
+        obj['req_code'] = "4";
+    } else if (test101 === 2) {
+        //delete db
+        obj['job_id'] = "1007";
+        obj['req_code'] = "3";
+    }
+
+    var ResponseJson = JSON.stringify(obj);
+
+    if (strMessage.action === "auth") {
+        if (strMessage.param.key === authKey) {
+            console.log("Auth OK,auth_key=" + strMessage.param.key);
+            //console.log("json=" + ResponseJson);
+            g_webSocket.send(ResponseJson);
+        }
+    } else if (strMessage.result === "success" || strMessage.result === "failure") {
+        console.log("strMessage.result=" + JSON.stringify(strMessage));
+        if (test101 < 3)
+            g_webSocket.send(ResponseJson);
+    }
+
+    test101 += 1;
+
+    if (test101 < 4) {
+        console.log(ResponseJson);
+    } else if(test101 === 4) {
+        EXIT();
+    }
+
+}
+
+function sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue) {
+    //console.log(utf8.decode(fileName));
+    obj.req_code = reqCode;
+    obj.param.filename = fileName;
+    obj.param.hash_value = hashValue;
+
+    var ResponseJson = JSON.stringify(obj);
+
+    if (strMessage.action === "auth") {
+        if (strMessage.param.key === authKey) {
+            console.log("Auth OK,auth_key=" + strMessage.param.key);
+            //console.log("json=" + ResponseJson);
+            g_webSocket.send(ResponseJson);
+        }
+    } else if (strMessage.result === "success" || strMessage.result === "failure") {
+        console.log("strMessage.result=" + JSON.stringify(strMessage));
+        if (testCntUni < 1)
+            g_webSocket.send(ResponseJson);
+    }
+
+    testCntUni += 1;
+
+    if (testCntUni < 2) {
+        console.log(ResponseJson);
+    } else if (testCntUni === 2) {
+        EXIT();
+    }
+}
+
+//Create once with negative hash value.
+function Test102(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Update once with negative hash value.
+function Test103(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Delete once with negative hash value.
+function Test104(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Create once with chinese charactors file path.
+function Test106(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Update once with chinese charactors file path.
+function Test107(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Delete once with chinese charactors file path.
+function Test108(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Create once with illegal file path.
+function Test109(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Update once with illegal file path.
+function Test110(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Delete once with illegal file path.
+function Test111(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Create once with illegal file path (chinese).
+function Test112(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Update once with illegal file path (chinese).
+function Test113(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Delete once with illegal file path (chinese).
+function Test114(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//No jobid
+function Test115(strMessage, obj, reqCode, fileName, hashValue) {
+    obj.job_id = "";
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//No action
+function Test116(strMessage, obj, reqCode, fileName, hashValue) {
+    obj.action = "";
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//No req_code
+function Test117(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//No filepath
+function Test118(strMessage, obj, reqCode, fileName, hashValue) {
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//jobid exceed 260 bytes
+function Test119(strMessage, obj, reqCode, fileName, hashValue) {
+    obj.job_id = "101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101101";
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
+//Arbitrary and illegal action string.
+function Test120(strMessage, obj, reqCode, fileName, hashValue) {
+    obj.action = "hahahaha";
+    sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
+}
+
 function autoTest(parameter,strMessage){
     switch (parameter) {
       case 1:
@@ -155,7 +392,109 @@ function autoTest(parameter,strMessage){
         break;     
       case 3:
         TestThree(strMessage);
-        break
+        break;
+      case 101: //DB operation combination test (create, update, and delete) with negative hash value.
+        fileName = "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe";
+        hashValue = "-606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test101To199(strMessage, obj, fileName, hashValue);
+        break;
+      case 102: //DB operation uni-test create with negative hash value.
+        fileName = "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe";
+        hashValue = "-606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test102(strMessage, obj, "0", fileName, hashValue);
+        break;
+      case 103: //DB operation uni-test update with negative hash value.
+        fileName = "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe";
+        hashValue = "-606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test103(strMessage, obj, "4", fileName, hashValue);
+        break;
+      case 104: //DB operation uni-test delete with negative hash value.
+        fileName = "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe";
+        hashValue = "-606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test104(strMessage, obj, "3", fileName, hashValue);
+        break;
+      case 105: //File path contains chinese charactors combination test.
+        fileNAme = utf8.encode("C:\\Users\\Developer\\Desktop\\台泥便當狗\\哈哈哈.exe");
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test101To199(strMessage, obj, fileNAme, hashValue);
+        break;
+      case 106: //File path contains chinese charactors unitest - create.
+ 
+        fileName = "C:\\Users\\Developer\\Desktop\\台泥便當狗\\哈哈哈.exe";
+        console.log(fileName);
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test106(strMessage, obj, "0", fileName, hashValue);
+        break;
+      case 107: //File path contains chinese charactors unitest - update.
+        fileName = "C:\\Users\\Developer\\Desktop\\台泥便當狗\\哈哈哈.exe";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test107(strMessage, obj, "4", fileName, hashValue);
+        break;
+      case 108: //File path contains chinese charactors unitest - delete.
+        fileName = "C:\\Users\\Developer\\Desktop\\台泥便當狗\\哈哈哈.exe";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test108(strMessage, obj, "3", fileName, hashValue);
+        break;
+      case 109: //Transfer illegal file path value unitest - create.
+        fileName = "amoiejeanffjdfkenncdj";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test109(strMessage, obj, "0", fileName, hashValue);
+        break;
+      case 110: //Transfer illegal file path value unitest - update.
+        fileName = "amoiejeanffjdfkenncdj";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test110(strMessage, obj, "4", fileName, hashValue);
+        break;
+      case 111: //Transfer illegal file path value unitest - delete.
+        fileName = "amoiejeanffjdfkenncdj";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test111(strMessage, obj, "3", fileName, hashValue);
+        break;
+      case 112: //Transfer illegal file path value (chinese charactors) unitest - create.
+        fileName = "這樣會接受嗎";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test112(strMessage, obj, "0", fileName, hashValue);
+        break;
+      case 113: //Transfer illegal file path value (chinese charactors) unitest - update.
+        fileName = "這樣會接受嗎";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test113(strMessage, obj, "4", fileName, hashValue);
+        break;
+      case 114: //Transfer illegal file path value (chinese charactors) unitest - delete.
+        fileName = "這樣會接受嗎";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test114(strMessage, obj, "3", fileName, hashValue);
+        break;
+      case 115: //json without jobid
+        fileName = "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test115(strMessage, obj, "3", fileName, hashValue);
+        break;
+      case 116: //json without action
+        fileName = "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test116(strMessage, obj, "3", fileName, hashValue);
+        break;
+      case 117: //json without req_code
+        fileName = "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test117(strMessage, obj, "", fileName, hashValue);
+        break;
+      case 118: //json without filepath
+        fileName = "";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test118(strMessage, obj, "3", fileName, hashValue);
+        break;
+      case 119: //jobid exceed 260 bytes
+        fileName = "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test119(strMessage, obj, "3", fileName, hashValue);
+        break;
+      case 120: //Arbitrary and illegal action string.
+        fileName = "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe";
+        hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
+        Test120(strMessage, obj, "3", fileName, hashValue);
+        break;
       default:
         console.log('autoTest item('+ parameter +')error');
     }

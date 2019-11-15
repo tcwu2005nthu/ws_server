@@ -9,6 +9,7 @@
   "author": "",
   "dependencies": {
     "socket.io": "*",
+    "utf8": "^3.0.0",
     "ws": "*"
   },
   "license": "ISC"
