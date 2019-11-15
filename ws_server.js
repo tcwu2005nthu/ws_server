@@ -45,12 +45,12 @@ var myArgs = process.argv.slice(2);
 //check avaliable of unit test in following switch-case
 switch (myArgs[0]) {
   case '1':
-//  	parameter=1;
-//    break;
   case '2':
-//    parameter=2;
-//    break;
   case '3':
+  case '11':
+  case '12':
+  case '4':
+  case '5':
     parameter=parseInt(myArgs[0]);
     break;
   case '101':
@@ -120,6 +120,10 @@ switch (myArgs[0]) {
     console.log('  node ws_server.js 1 : hbt 1Million stress');
     console.log('  node ws_server.js 2 : hbt endless(overnight) stress');    
     console.log('  node ws_server.js 3 : createdb 1Million stress');    
+    console.log('  node ws_server.js 4 : createdb and deletedb 1Million stress ');    
+    console.log('  node ws_server.js 5 : createdb and updatedb and deletedb 1Million stress ');    
+    console.log('  node ws_server.js 11 : disable wl 1Millon stress ');    
+    console.log('  node ws_server.js 12 : enable and disable wl 1Millon stress');    
     EXIT();
 }
 
@@ -192,10 +196,10 @@ function TestTwo(strMessage){
    //if(hbt_offset>10000)
    //        EXIT();
 }
-var t3cnt=0
+var t3cnt=0 //reserve for test3,4,5
 function TestThree(strMessage){ //db stress
     var obj = {
-        job_id: +"1005"+t3cnt,
+        job_id: +"3000"+t3cnt,  
         action: "database",
         req_code: "0",
         param: {
@@ -215,8 +219,8 @@ function TestThree(strMessage){ //db stress
             console.log("strMessage.result=" + JSON.stringify(strMessage));    
             g_webSocket.send(ResponseJson);
    }
-   t3cnt++;
    sleep(1);
+   t3cnt++;
    if(t3cnt>1000000)
     EXIT();
 }
@@ -381,6 +385,87 @@ function Test120(strMessage, obj, reqCode, fileName, hashValue) {
     obj.action = "hahahaha";
     sendRequestOnce(strMessage, obj, reqCode, fileName, hashValue);
 }
+function TestFour(strMessage){ //db stress
+    var obj = {
+        job_id: +"4000"+t3cnt,  //t3cnt init to 0
+        action: "database",
+        req_code: (t3cnt%2)? "3":"0", //t3cnt=0 => reqcode=0 ; t3cnt=1=>reqcode=3
+        param: {
+            filename: "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe",
+            hash_value: "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920"
+        }
+    };
+    var ResponseJson = JSON.stringify(obj);
+
+    if (strMessage.action === "auth" || strMessage.result === "success" || strMessage.result === "failure") {
+            console.log("strMessage=" + JSON.stringify(strMessage));    
+            g_webSocket.send(ResponseJson);
+    }
+    sleep(1);
+    if(t3cnt++>=1000000)
+        EXIT();
+}
+function TestFive(strMessage){ //db stress
+    var obj = {
+        job_id: +"5000"+t3cnt,  //t3cnt init to 0
+        action: "database",
+        //t3cnt=0 =>reqcode=0; t3cnt=1=>reqcode=4; t3cnt=2=>regcode=3
+        req_code: (!(t3cnt%3))
+                   ?"0"
+                   :(t3cnt%3-1)
+                   ?"3"
+                   :"4" 
+                   ,
+        param: {
+            filename: "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe",
+            hash_value: "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920"
+        }
+    };
+    var ResponseJson = JSON.stringify(obj);
+
+    if (strMessage.action === "auth" || strMessage.result === "success" || strMessage.result === "failure") {
+            console.log("strMessage=" + JSON.stringify(strMessage));    
+            g_webSocket.send(ResponseJson);
+    }
+    sleep(1);
+    if(t3cnt++>=1000000)
+        EXIT();
+}
+var t11cnt=0 //reserve for test11,12,13
+function TestEleven(strMessage){
+    var obj = {
+    job_id: +"11000"+t11cnt,
+    action: "switch_mode",
+    param: {
+        mode: "disable"
+        }
+    };
+    json = JSON.stringify(obj);
+    if (strMessage.action === "auth" || strMessage.result === "success" || strMessage.result === "failure") {
+        console.log("strMessage=" + JSON.stringify(strMessage));    
+        g_webSocket.send(json);
+    }
+    sleep(1);
+    if(t11cnt++>1000000)
+        EXIT();
+}
+function TestTwelve(strMessage){
+    var obj = {
+    job_id: +"12000"+t11cnt,
+    action: "switch_mode",
+    param: {
+        mode: (t11cnt%2)?"disable":"enable"
+        }
+    };
+    json = JSON.stringify(obj);
+    if (strMessage.action === "auth" || strMessage.result === "success" || strMessage.result === "failure") {
+        console.log("strMessage=" + JSON.stringify(strMessage));    
+        g_webSocket.send(json);
+    }
+    sleep(1);
+    if(t11cnt++>1000000)
+        EXIT();
+}
 
 function autoTest(parameter,strMessage){
     switch (parameter) {
@@ -494,6 +579,18 @@ function autoTest(parameter,strMessage){
         fileName = "C:\\Users\\Developer\\Desktop\\testdir\\npp.7.7.1.Installer.x64.exe";
         hashValue = "606c73be58f9386ea62cf325b87a24eae16e97da2a4f754584c287ad3567f1e92a46672c5c9c7ee19bbfe405bfad9db657694b4852f66e13e83f4f57ec3ac920";
         Test120(strMessage, obj, "3", fileName, hashValue);
+        break
+      case 11:
+        TestEleven(strMessage);
+        break;
+      case 12:
+        TestTwelve(strMessage);
+        break;
+      case 4:
+        TestFour(strMessage);
+        break;
+      case 5:
+        TestFive(strMessage);
         break;
       default:
         console.log('autoTest item('+ parameter +')error');
@@ -721,4 +818,3 @@ webSocketServer.on('connection', (webSocket, req) => {
     delete webSockets[userIP];
   });
 });
-
