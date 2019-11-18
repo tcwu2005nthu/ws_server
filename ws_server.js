@@ -123,7 +123,28 @@ switch (myArgs[0]) {
     console.log('  node ws_server.js 4 : createdb and deletedb 1Million stress ');    
     console.log('  node ws_server.js 5 : createdb and updatedb and deletedb 1Million stress ');    
     console.log('  node ws_server.js 11 : disable wl 1Millon stress ');    
-    console.log('  node ws_server.js 12 : enable and disable wl 1Millon stress');    
+    console.log('  node ws_server.js 12 : enable and disable wl 1Millon stress');
+    console.log('  node ws_server.js 101 : DB operation combination-test (create, update, and delete) with negative hash value');
+    console.log('  node ws_server.js 102 : DB operation unit-test create with negative hash value');
+    console.log('  node ws_server.js 103 : DB operation unit-test update with negative hash value');
+    console.log('  node ws_server.js 104 : DB operation unit-test delete with negative hash value');
+    console.log('  node ws_server.js 105 : File path contains chinese charactors combination-test');
+    console.log('  node ws_server.js 106 : File path contains chinese charactors unit-test - create');
+    console.log('  node ws_server.js 107 : File path contains chinese charactors unit-test - update');
+    console.log('  node ws_server.js 108 : File path contains chinese charactors unit-test - delete');
+    console.log('  node ws_server.js 109 : Transfer illegal file path value unit-test - create');
+    console.log('  node ws_server.js 110 : Transfer illegal file path value unit-test - update');
+    console.log('  node ws_server.js 111 : Transfer illegal file path value unit-test - delete');
+    console.log('  node ws_server.js 112 : Transfer illegal file path value (with chinese charactors) unit-test - create');
+    console.log('  node ws_server.js 113 : Transfer illegal file path value (with chinese charactors) unit-test - update');
+    console.log('  node ws_server.js 114 : Transfer illegal file path value (with chinese charactors) unit-test - delete');
+    console.log('  node ws_server.js 115 : json without jobid');
+    console.log('  node ws_server.js 116 : json without action');
+    console.log('  node ws_server.js 117 : json without req_code');
+    console.log('  node ws_server.js 118 : json without filepath');
+    console.log('  node ws_server.js 119 : json exceed 260 bytes');
+    console.log('  node ws_server.js 120 : Arbitrary and illegal action string');
+
     EXIT();
 }
 
