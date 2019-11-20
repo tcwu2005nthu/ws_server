@@ -189,7 +189,7 @@ function TestOne(strMessage){
    }
    hbt_offset++;
    sleep(1);
-   if(hbt_offset>100000)
+   if(hbt_offset>1000000)
         EXIT();
 }
 function TestTwo(strMessage){
@@ -624,10 +624,15 @@ webSocketServer.on('connection', (webSocket, req) => {
   	return ;
 
   if(parameter >=1 || parameter <=199){
-    console.log('parameter='+parameter);
+    //console.log('parameter='+parameter);
     g_webSocket=webSocket;
     webSocket.on('message', (message) => {
+      //console.log('message='+message);
+  try{    
       strMessage = JSON.parse(message);
+  }catch {
+    console.log('catch-message='+message);
+  }
       autoTest(parameter,strMessage);
 	});
 	return ;
